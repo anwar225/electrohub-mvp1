@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: electrohub_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - electrohub_pg:/var/lib/postgresql/data
+
+  api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/electrohub_db
+    depends_on:
+      - db
+    command: sh -c "npx prisma migrate deploy && npm start"
+
+volumes:
+  electrohub_pg:
