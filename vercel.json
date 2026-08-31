@@ -4,7 +4,4 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "vite",
-  "env": {
-    "VITE_API_URL": "@backend-api-url"
-  }
 }
