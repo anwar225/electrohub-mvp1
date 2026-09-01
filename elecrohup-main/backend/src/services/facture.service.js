@@ -3,46 +3,23 @@ const { slugifyRef } = require('../utils/validators');
 const { recordMovement } = require('./stock.service');
 
 function calculerMontantsItem(quantite, prixUnitaire, tauxTVA, type = 'achat') {
-  if (type === 'vente') {
-    // Pour les ventes, le prix est TTC, on décompose en HT + TVA
-    const montantTTC = quantite * prixUnitaire;
-    const montantHT = montantTTC / (1 + tauxTVA / 100);
-    const montantTVA = montantTTC - montantHT;
-    
-    return {
-      montantHT: Number(montantHT.toFixed(2)),
-      montantTVA: Number(montantTVA.toFixed(2)),
-      montantTTC: Number(montantTTC.toFixed(2)),
-    };
-  } else {
-    // Pour les achats, le prix est HT, on ajoute la TVA
-    const montantHT = quantite * prixUnitaire;
-    const montantTVA = montantHT * (tauxTVA / 100);
-    const montantTTC = montantHT + montantTVA;
-    
-    return {
-      montantHT: Number(montantHT.toFixed(2)),
-      montantTVA: Number(montantTVA.toFixed(2)),
-      montantTTC: Number(montantTTC.toFixed(2)),
-    };
-  }
+  // Calcul simple sans TVA - juste quantité * prix unitaire
+  const montantTotal = quantite * prixUnitaire;
+  
+  return {
+    montantTotal: Number(montantTotal.toFixed(2)),
+  };
 }
 
 function calculerTotauxFacture(items) {
-  let totalHT = 0;
-  let totalTVA = 0;
-  let totalTTC = 0;
+  let total = 0;
 
   for (const item of items) {
-    totalHT += item.montantHT || 0;
-    totalTVA += item.montantTVA || 0;
-    totalTTC += item.montantTTC || 0;
+    total += item.montantTotal || 0;
   }
 
   return {
-    montantHT: Number(totalHT.toFixed(2)),
-    montantTVA: Number(totalTVA.toFixed(2)),
-    montantTTC: Number(totalTTC.toFixed(2)),
+    montantTotal: Number(total.toFixed(2)),
   };
 }
 
@@ -108,9 +85,8 @@ async function replaceItems(factureId, items, type = 'achat') {
     const produit = await findOrCreateProduit(item);
     const quantite = parseInt(item.quantite, 10) || 0;
     const prixUnitaire = Number(item.prixUnitaire) || 0;
-    const tauxTVA = Number(item.tauxTVA) || 20;
     
-    const montants = calculerMontantsItem(quantite, prixUnitaire, tauxTVA, type);
+    const montants = calculerMontantsItem(quantite, prixUnitaire, 0, type);
     
     const factureItem = await prisma.factureItem.create({
       data: {
@@ -119,7 +95,6 @@ async function replaceItems(factureId, items, type = 'achat') {
         designation: item.designation || item.nom || produit.nom,
         quantite,
         prixUnitaire,
-        tauxTVA,
         ...montants,
       },
     });
@@ -153,9 +128,7 @@ async function saveFacture({
       type,
       fournisseurNom: fournisseurNom || null,
       clientNom: clientNom || null,
-      montantHT: 0,
-      montantTVA: 0,
-      montantTTC: 0,
+      montantTotal: 0,
       status: 'draft',
       userId,
     },
