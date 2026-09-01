@@ -1,61 +1,36 @@
 /**
- * Calcule les montants pour un item de facture
+ * Calcule les montants pour un item de facture (SANS TVA)
  */
-function calculerMontantsItem(quantite, prixUnitaire, tauxTVA = 20, type = 'achat') {
+function calculerMontantsItem(quantite, prixUnitaire, tauxTVA = 0, type = 'achat') {
   // Validation
   quantite = parseFloat(quantite) || 0;
   prixUnitaire = parseFloat(prixUnitaire) || 0;
-  tauxTVA = parseFloat(tauxTVA) || 20;
 
-  // Calculs selon le type de facture
-  if (type === 'vente') {
-    // Pour les ventes, le prix est TTC, on décompose en HT + TVA
-    const montantTTC = quantite * prixUnitaire;
-    const montantHT = montantTTC / (1 + tauxTVA / 100);
-    const montantTVA = montantTTC - montantHT;
-
-    return {
-      montantHT: parseFloat(montantHT.toFixed(2)),
-      montantTVA: parseFloat(montantTVA.toFixed(2)),
-      montantTTC: parseFloat(montantTTC.toFixed(2))
-    };
-  } else {
-    // Pour les achats, le prix est HT, on ajoute la TVA
-    const montantHT = quantite * prixUnitaire;
-    const montantTVA = montantHT * (tauxTVA / 100);
-    const montantTTC = montantHT + montantTVA;
-
-    return {
-      montantHT: parseFloat(montantHT.toFixed(2)),
-      montantTVA: parseFloat(montantTVA.toFixed(2)),
-      montantTTC: parseFloat(montantTTC.toFixed(2))
-    };
-  }
-}
-
-/**
- * Calcule les totaux de la facture
- */
-function calculerTotauxFacture(items) {
-  let totalHT = 0;
-  let totalTVA = 0;
-  let totalTTC = 0;
-
-  items.forEach(item => {
-    totalHT += item.montantHT || 0;
-    totalTVA += item.montantTVA || 0;
-    totalTTC += item.montantTTC || 0;
-  });
+  // Calcul simple sans TVA - juste quantité * prix unitaire
+  const montantTotal = quantite * prixUnitaire;
 
   return {
-    montantHT: parseFloat(totalHT.toFixed(2)),
-    montantTVA: parseFloat(totalTVA.toFixed(2)),
-    montantTTC: parseFloat(totalTTC.toFixed(2))
+    montantTotal: parseFloat(montantTotal.toFixed(2))
   };
 }
 
 /**
- * Valide les données de la facture avant sauvegarde
+ * Calcule les totaux de la facture (SANS TVA)
+ */
+function calculerTotauxFacture(items) {
+  let total = 0;
+
+  items.forEach(item => {
+    total += item.montantTotal || 0;
+  });
+
+  return {
+    montantTotal: parseFloat(total.toFixed(2))
+  };
+}
+
+/**
+ * Valide les données de la facture avant sauvegarde (SANS TVA)
  */
 function validerFacture(facture) {
   const erreurs = [];
