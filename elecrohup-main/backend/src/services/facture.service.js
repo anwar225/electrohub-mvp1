@@ -1,6 +1,5 @@
 const prisma = require('../utils/prisma');
 const { slugifyRef } = require('../utils/validators');
-const { recordMovement } = require('./stock.service');
 
 function calculerMontantsItem(quantite, prixUnitaire, tauxTVA, type = 'achat') {
   // Calcul simple sans TVA - juste quantité * prix unitaire
@@ -247,20 +246,7 @@ async function validateFacture(id, userId) {
     });
   }
 
-  for (const item of facture.items) {
-    const delta = facture.type === 'vente' ? -item.quantite : item.quantite;
-    await prisma.produit.update({
-      where: { id: item.produitId },
-      data: { stockActuel: { increment: delta } },
-    });
-    await recordMovement({
-      produitId: item.produitId,
-      type: facture.type === 'vente' ? 'out' : 'in',
-      quantite: item.quantite,
-      factureId: facture.id,
-    });
-  }
-
+  // Pour MVP, on ne gère pas le stock automatiquement
   return prisma.facture.update({
     where: { id: facture.id },
     data: { status: 'validated' },

@@ -15,10 +15,11 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => {
   res.json({
-    name: 'ElectroHub API MVP1',
+    name: 'ElectroHub API MVP',
     status: 'ok',
     health: '/health',
     endpoints: {

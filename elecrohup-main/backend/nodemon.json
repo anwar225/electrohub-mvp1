@@ -1,5 +1,0 @@
-{
-  "watch": ["src", "prisma"],
-  "ext": "js,json",
-  "ignore": ["src/uploads"]
-}
