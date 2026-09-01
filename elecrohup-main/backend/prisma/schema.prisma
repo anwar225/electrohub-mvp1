@@ -28,9 +28,7 @@ model Facture {
   type          String
   fournisseurNom String?
   clientNom     String?
-  montantHT     Float    @default(0)
-  montantTVA    Float    @default(0)
-  montantTTC    Float    @default(0)
+  montantTotal  Float    @default(0)
   imageUrl      String?
   status        String   @default("draft")
   userId        Int
@@ -51,10 +49,7 @@ model FactureItem {
   designation  String
   quantite     Int
   prixUnitaire Float
-  tauxTVA      Float    @default(20)
-  montantHT    Float    @default(0)
-  montantTVA   Float    @default(0)
-  montantTTC   Float    @default(0)
+  montantTotal Float    @default(0)
   createdAt    DateTime @default(now())
 
   @@map("facture_items")
