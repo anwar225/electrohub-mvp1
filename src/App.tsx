@@ -8,7 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/store/authStore';
 
 const Dashboard = lazy(() => import('@/pages/Dashboard').then((m) => ({ default: m.Dashboard })));
-const FacturesPage = lazy(() => import('@/pages/FacturesPage').then((m) => ({ default: m.FacturesPage })));
+const FournisseursPage = lazy(() => import('@/pages/FournisseursPage').then((m) => ({ default: m.FournisseursPage })));
+const VentesPage = lazy(() => import('@/pages/VentesPage').then((m) => ({ default: m.VentesPage })));
 const StockPage = lazy(() => import('@/pages/StockPage').then((m) => ({ default: m.StockPage })));
 
 function PageFallback() {
@@ -46,7 +47,8 @@ export default function App() {
             }
           >
             <Route path="/dashboard" element={<Suspense fallback={<PageFallback />}><Dashboard /></Suspense>} />
-            <Route path="/factures" element={<Suspense fallback={<PageFallback />}><FacturesPage /></Suspense>} />
+            <Route path="/fournisseurs" element={<Suspense fallback={<PageFallback />}><FournisseursPage /></Suspense>} />
+            <Route path="/ventes" element={<Suspense fallback={<PageFallback />}><VentesPage /></Suspense>} />
             <Route path="/stock" element={<Suspense fallback={<PageFallback />}><StockPage /></Suspense>} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -6,6 +6,7 @@ import {
   PackageX,
   Boxes,
   Plus,
+  ShoppingCart,
   Eye,
   ArrowRight,
 } from 'lucide-react';
@@ -89,8 +90,13 @@ export function Dashboard() {
       {/* Quick actions */}
       <div className="flex flex-wrap gap-2.5">
         <Button asChild>
-          <Link to="/factures">
-            <Plus className="mr-2 h-4 w-4" /> Nouvelle facture
+          <Link to="/fournisseurs">
+            <Plus className="mr-2 h-4 w-4" /> Nouvelle facture fournisseur
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/ventes">
+            <ShoppingCart className="mr-2 h-4 w-4" /> Nouvelle vente
           </Link>
         </Button>
         <Button asChild variant="outline">
@@ -103,9 +109,9 @@ export function Dashboard() {
       {/* Recent factures */}
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
-          <CardTitle className="text-base">Dernières factures</CardTitle>
+          <CardTitle className="text-base">Dernières factures fournisseurs</CardTitle>
           <Button asChild variant="ghost" size="sm" className="gap-1 text-primary">
-            <Link to="/factures">
+            <Link to="/fournisseurs">
               Tout voir <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </Button>
@@ -120,7 +126,7 @@ export function Dashboard() {
           ) : recent.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted-foreground">Aucune facture</p>
           ) : (
-            recent.map((f) => (
+            recent.filter(f => f.type === 'achat').map((f) => (
               <div
                 key={f.id}
                 className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5"
@@ -128,7 +134,7 @@ export function Dashboard() {
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{f.numero}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {f.type === 'achat' ? f.fournisseurNom : f.clientNom || '-'} · {formatDate(f.date)}
+                    {f.fournisseurNom} · {formatDate(f.date)}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
