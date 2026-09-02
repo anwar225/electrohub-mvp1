@@ -30,12 +30,19 @@ export function Dashboard() {
     const now = new Date();
     const monthFactures = (factures ?? []).filter((f) => isSameMonth(f.date, now));
     const caMois = monthFactures
-      .filter((f) => f.status === 'Validée')
+      .filter((f) => f.status === 'Validée' && f.type === 'vente')
       .reduce((s, f) => s + f.montantTotal, 0);
+    const fournisseurMois = monthFactures
+      .filter((f) => f.status === 'Validée' && f.type === 'achat')
+      .length;
+    const ventesMois = monthFactures
+      .filter((f) => f.status === 'Validée' && f.type === 'vente')
+      .length;
     const rupture = (produits ?? []).filter((p) => getStockStatus(p.stock, p.stockMin) === 'Rupture').length;
     return {
       caMois,
-      nbFactMois: monthFactures.length,
+      fournisseurMois,
+      ventesMois,
       rupture,
       totalProduits: (produits ?? []).length,
     };
@@ -56,7 +63,7 @@ export function Dashboard() {
       </div>
 
       {/* KPIs */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <Kpi
           loading={lf}
           title="Chiffre d'affaires (mois)"
@@ -66,10 +73,17 @@ export function Dashboard() {
         />
         <Kpi
           loading={lf}
-          title="Factures (mois)"
-          value={String(stats.nbFactMois)}
+          title="Fournisseurs (mois)"
+          value={String(stats.fournisseurMois)}
           icon={FileText}
           tint="warning"
+        />
+        <Kpi
+          loading={lf}
+          title="Ventes (mois)"
+          value={String(stats.ventesMois)}
+          icon={ShoppingCart}
+          tint="success"
         />
         <Kpi
           loading={lp}
@@ -80,10 +94,10 @@ export function Dashboard() {
         />
         <Kpi
           loading={lp}
-          title="Total inventaire"
+          title="Stock"
           value={String(stats.totalProduits)}
           icon={Boxes}
-          tint="success"
+          tint="info"
         />
       </div>
 
@@ -157,6 +171,7 @@ const tints: Record<string, string> = {
   warning: 'bg-warning/10 text-warning',
   destructive: 'bg-destructive/10 text-destructive',
   success: 'bg-success/10 text-success',
+  info: 'bg-blue-500/10 text-blue-600',
 };
 
 function Kpi({
