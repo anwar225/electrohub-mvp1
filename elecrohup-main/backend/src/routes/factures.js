@@ -37,7 +37,7 @@ router.post('/', verifyToken, async (req, res, next) => {
 
     // Utiliser le service existant pour la création
     const facture = await saveFacture({
-      userId: req.userId,
+      userId: req.user.id,
       numero,
       date,
       type,
@@ -57,7 +57,7 @@ router.post('/', verifyToken, async (req, res, next) => {
 router.get('/', verifyToken, async (req, res, next) => {
   try {
     const factures = await prisma.facture.findMany({
-      where: { userId: req.userId },
+      where: { userId: req.user.id },
       include: { items: { include: { produit: true } } },
       orderBy: { createdAt: 'desc' },
     });
@@ -72,7 +72,7 @@ router.get('/:id', verifyToken, async (req, res, next) => {
   try {
     const id = toInt(req.params.id);
     const facture = await prisma.facture.findFirst({
-      where: { id, userId: req.userId },
+      where: { id, userId: req.user.id },
       include: { items: { include: { produit: true } } },
     });
     if (!facture) return res.status(404).json({ error: 'Not found' });
@@ -92,7 +92,7 @@ router.put('/:id', verifyToken, async (req, res, next) => {
       return res.status(400).json({ error: 'Status is required' });
     }
     
-    const updated = await updateFacture(id, req.userId, { status });
+    const updated = await updateFacture(id, req.user.id, { status });
     res.json(updated);
   } catch (error) {
     next(error);
@@ -104,7 +104,7 @@ router.delete('/:id', verifyToken, async (req, res, next) => {
   try {
     const id = toInt(req.params.id);
     const existing = await prisma.facture.findFirst({
-      where: { id, userId: req.userId },
+      where: { id, userId: req.user.id },
     });
     if (!existing) return res.status(404).json({ error: 'Not found' });
 

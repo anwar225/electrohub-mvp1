@@ -7,7 +7,11 @@ const router = express.Router();
 
 router.get('/', verifyToken, async (req, res, next) => {
   try {
-    const produits = await prisma.produit.findMany({ orderBy: { nom: 'asc' } });
+    const userId = req.user.id;
+    const produits = await prisma.produit.findMany({ 
+      where: { userId },
+      orderBy: { nom: 'asc' } 
+    });
     res.json(produits);
   } catch (error) {
     next(error);
@@ -16,8 +20,12 @@ router.get('/', verifyToken, async (req, res, next) => {
 
 router.get('/:id', verifyToken, async (req, res, next) => {
   try {
-    const produit = await prisma.produit.findUnique({
-      where: { id: toInt(req.params.id) },
+    const userId = req.user.id;
+    const produit = await prisma.produit.findFirst({
+      where: { 
+        id: toInt(req.params.id),
+        userId 
+      },
     });
     if (!produit) return res.status(404).json({ error: 'Not found' });
     res.json(produit);
@@ -33,6 +41,7 @@ router.post('/', verifyToken, async (req, res, next) => {
       return res.status(400).json({ error: 'Missing fields', missing });
     }
     const { nom, reference, categorie, prixAchat, prixVente, stockMin, stockActuel, stock } = req.body;
+    const userId = req.user.id;
     const produit = await prisma.produit.create({
       data: {
         nom,
@@ -42,6 +51,7 @@ router.post('/', verifyToken, async (req, res, next) => {
         prixVente: Number(prixVente),
         stockMin: stockMin !== undefined ? Number(stockMin) : 5,
         stockActuel: Number(stockActuel ?? stock ?? 0),
+        userId,
       },
     });
     res.status(201).json(produit);
@@ -52,7 +62,21 @@ router.post('/', verifyToken, async (req, res, next) => {
 
 router.put('/:id', verifyToken, async (req, res, next) => {
   try {
+    const userId = req.user.id;
     const { nom, reference, categorie, prixAchat, prixVente, stockMin, stockActuel, stock } = req.body;
+    
+    // Vérifier que le produit appartient à l'utilisateur
+    const existing = await prisma.produit.findFirst({
+      where: { 
+        id: toInt(req.params.id),
+        userId 
+      }
+    });
+    
+    if (!existing) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    
     const produit = await prisma.produit.update({
       where: { id: toInt(req.params.id) },
       data: {
@@ -75,7 +99,20 @@ router.put('/:id', verifyToken, async (req, res, next) => {
 
 router.delete('/:id', verifyToken, async (req, res, next) => {
   try {
+    const userId = req.user.id;
     const id = toInt(req.params.id);
+    
+    // Vérifier que le produit appartient à l'utilisateur
+    const existing = await prisma.produit.findFirst({
+      where: { 
+        id,
+        userId 
+      }
+    });
+    
+    if (!existing) {
+      return res.status(404).json({ error: 'Not found' });
+    }
     
     // Vérifier si le produit est utilisé dans des factures
     const factureItems = await prisma.factureItem.findMany({
