@@ -10,15 +10,6 @@ import {
   Eye,
   ArrowRight,
 } from 'lucide-react';
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -50,7 +41,6 @@ export function Dashboard() {
     };
   }, [factures, produits]);
 
-  const weeklyData = useMemo(() => buildWeeklyData(factures ?? []), [factures]);
   const recent = useMemo(
     () => [...(factures ?? [])].sort((a, b) => +new Date(b.date) - +new Date(a.date)).slice(0, 5),
     [factures]
@@ -105,113 +95,54 @@ export function Dashboard() {
           </Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/stock">
-            <PackagePlus className="mr-2 h-4 w-4" /> Ajouter stock
-          </Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link to="/stock">
-            <Eye className="mr-2 h-4 w-4" /> Voir tous les produits
+          <Link to="/factures">
+            <Eye className="mr-2 h-4 w-4" /> Voir toutes les factures
           </Link>
         </Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-5">
-        {/* Chart */}
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="text-base">Ventes par semaine (30 derniers jours)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {lf ? (
-              <Skeleton className="h-[260px] w-full" />
-            ) : (
-              <ResponsiveContainer width="100%" height={260}>
-                <AreaChart data={weeklyData} margin={{ left: -10, right: 10, top: 5 }}>
-                  <defs>
-                    <linearGradient id="ca" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: 'hsl(var(--card))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                    formatter={(v: number) => [formatCurrency(v), 'Ventes']}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="total"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2.5}
-                    fill="url(#ca)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent factures */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-base">Dernières factures</CardTitle>
-            <Button asChild variant="ghost" size="sm" className="gap-1 text-primary">
-              <Link to="/factures">
-                Tout voir <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-1.5">
-            {lf ? (
-              <div className="space-y-2">
-                {[0, 1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
-                ))}
-              </div>
-            ) : recent.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">Aucune facture</p>
-            ) : (
-              recent.map((f) => (
-                <div
-                  key={f.id}
-                  className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{f.numero}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {f.type === 'achat' ? f.fournisseurNom : f.clientNom || '-'} · {formatDate(f.date)}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <FactureStatusBadge status={f.status} />
-                    <span className="text-sm font-semibold tabular-nums">
-                      {formatCurrency(f.montantTotal)}
-                    </span>
-                  </div>
+      {/* Recent factures */}
+      <Card>
+        <CardHeader className="flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-base">Dernières factures</CardTitle>
+          <Button asChild variant="ghost" size="sm" className="gap-1 text-primary">
+            <Link to="/factures">
+              Tout voir <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-1.5">
+          {lf ? (
+            <div className="space-y-2">
+              {[0, 1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : recent.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">Aucune facture</p>
+          ) : (
+            recent.map((f) => (
+              <div
+                key={f.id}
+                className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{f.numero}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {f.type === 'achat' ? f.fournisseurNom : f.clientNom || '-'} · {formatDate(f.date)}
+                  </p>
                 </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <FactureStatusBadge status={f.status} />
+                  <span className="text-sm font-semibold tabular-nums">
+                    {formatCurrency(f.montantTotal)}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -255,27 +186,4 @@ function Kpi({
       </CardContent>
     </Card>
   );
-}
-
-function buildWeeklyData(factures: { date: string; montantTotal: number; status: string }[]) {
-  const weeks: { label: string; total: number }[] = [];
-  const now = new Date();
-  for (let i = 3; i >= 0; i--) {
-    const end = new Date(now);
-    end.setDate(now.getDate() - i * 7);
-    const start = new Date(end);
-    start.setDate(end.getDate() - 6);
-    const total = factures
-      .filter((f) => {
-        if (f.status !== 'Validée') return false;
-        const d = new Date(f.date);
-        return d >= start && d <= end;
-      })
-      .reduce((s, f) => s + f.montantTotal, 0);
-    weeks.push({
-      label: `S${4 - i}`,
-      total,
-    });
-  }
-  return weeks;
 }
