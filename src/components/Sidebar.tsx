@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileText,
+  Package,
   LogOut,
   Zap,
   X,
@@ -14,6 +15,7 @@ import { Button } from '@/components/ui/button';
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/factures', label: 'Factures', icon: FileText },
+  { to: '/stock', label: 'Stock', icon: Package },
 ];
 
 export function Sidebar() {

@@ -6,7 +6,6 @@ import {
   PackageX,
   Boxes,
   Plus,
-  PackagePlus,
   Eye,
   ArrowRight,
 } from 'lucide-react';
@@ -95,8 +94,8 @@ export function Dashboard() {
           </Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/factures">
-            <Eye className="mr-2 h-4 w-4" /> Voir toutes les factures
+          <Link to="/stock">
+            <Eye className="mr-2 h-4 w-4" /> Voir le stock
           </Link>
         </Button>
       </div>

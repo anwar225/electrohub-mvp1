@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/authStore';
 
 const Dashboard = lazy(() => import('@/pages/Dashboard').then((m) => ({ default: m.Dashboard })));
 const FacturesPage = lazy(() => import('@/pages/FacturesPage').then((m) => ({ default: m.FacturesPage })));
+const StockPage = lazy(() => import('@/pages/StockPage').then((m) => ({ default: m.StockPage })));
 
 function PageFallback() {
   return (
@@ -46,6 +47,7 @@ export default function App() {
           >
             <Route path="/dashboard" element={<Suspense fallback={<PageFallback />}><Dashboard /></Suspense>} />
             <Route path="/factures" element={<Suspense fallback={<PageFallback />}><FacturesPage /></Suspense>} />
+            <Route path="/stock" element={<Suspense fallback={<PageFallback />}><StockPage /></Suspense>} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
