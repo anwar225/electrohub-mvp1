@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 
 export function Login() {
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
+  const authStore = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ export function Login() {
     setLoading(true);
     try {
       const { user, token } = await api.login(email, password);
-      setAuth(user, token);
+      authStore.setAuth(user, token);
       toast.success('Connexion réussie');
       navigate('/dashboard');
     } catch (err) {
@@ -83,7 +83,7 @@ export function Login() {
 
 export function Signup() {
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
+  const authStore = useAuthStore();
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -98,7 +98,7 @@ export function Signup() {
     setLoading(true);
     try {
       const { user, token } = await api.signup(nom, email, password);
-      setAuth(user, token);
+      authStore.setAuth(user, token);
       toast.success('Compte créé avec succès');
       navigate('/dashboard');
     } catch (err) {

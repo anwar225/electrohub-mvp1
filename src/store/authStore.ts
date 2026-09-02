@@ -1,3 +1,4 @@
+import React from 'react';
 import type { User } from '@/types';
 
 interface AuthState {
@@ -35,18 +36,31 @@ const setStoredAuth = (user: User | null, token: string | null) => {
   }
 };
 
+let authState = getStoredAuth();
+const listeners = new Set<() => void>();
+
 export const useAuthStore = () => {
-  const state = getStoredAuth();
-  
+  const [, forceUpdate] = React.useState({});
+
+  React.useEffect(() => {
+    const listener = () => forceUpdate({});
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  }, []);
+
   return {
-    user: state.user,
-    token: state.token,
+    user: authState.user,
+    token: authState.token,
     setAuth: (user: User, token: string) => {
+      authState = { user, token };
       setStoredAuth(user, token);
+      listeners.forEach(l => l());
     },
     logout: () => {
+      authState = { user: null, token: null };
       setStoredAuth(null, null);
+      listeners.forEach(l => l());
     },
-    isAuthenticated: () => !!state.token,
+    isAuthenticated: () => !!authState.token,
   };
 };

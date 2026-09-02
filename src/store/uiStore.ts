@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface UIState {
   sidebarOpen: boolean;
   toggleSidebar: () => void;
@@ -27,17 +29,29 @@ const setStoredUI = (sidebarOpen: boolean) => {
   }
 };
 
+let uiState = getStoredUI();
+const listeners = new Set<() => void>();
+
 export const useUIStore = () => {
-  const state = getStoredUI();
-  
+  const [, forceUpdate] = React.useState({});
+
+  React.useEffect(() => {
+    const listener = () => forceUpdate({});
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  }, []);
+
   return {
-    sidebarOpen: state.sidebarOpen,
+    sidebarOpen: uiState.sidebarOpen,
     toggleSidebar: () => {
-      const newState = !state.sidebarOpen;
-      setStoredUI(newState);
+      uiState = { sidebarOpen: !uiState.sidebarOpen };
+      setStoredUI(uiState.sidebarOpen);
+      listeners.forEach(l => l());
     },
     setSidebar: (open: boolean) => {
+      uiState = { sidebarOpen: open };
       setStoredUI(open);
+      listeners.forEach(l => l());
     },
   };
 };

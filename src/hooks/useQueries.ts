@@ -1,5 +1,5 @@
+import React from 'react';
 import { api } from '@/lib/api';
-import { useAuthStore } from '@/store/authStore';
 import { toast } from 'sonner';
 import type {
   Facture,
@@ -8,14 +8,16 @@ import type {
 
 // Simple API calls without react-query
 export function useFactures() {
-  const token = useAuthStore((s) => s.token);
-  
-  const fetchFactures = async () => {
-    if (!token) return [];
-    return await api.listFactures();
-  };
-  
-  return { data: fetchFactures(), isLoading: false };
+  const [data, setData] = React.useState<Facture[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    api.listFactures()
+      .then(setData)
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  return { data, isLoading };
 }
 
 export function useCreateFacture() {
@@ -64,14 +66,16 @@ export function useDeleteFacture() {
 }
 
 export function useProduits() {
-  const token = useAuthStore((s) => s.token);
-  
-  const fetchProduits = async () => {
-    if (!token) return [];
-    return await api.listProduits();
-  };
-  
-  return { data: fetchProduits(), isLoading: false };
+  const [data, setData] = React.useState<Produit[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    api.listProduits()
+      .then(setData)
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  return { data, isLoading };
 }
 
 export function useCreateProduit() {

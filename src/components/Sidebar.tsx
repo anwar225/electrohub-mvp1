@@ -2,7 +2,6 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileText,
-  Package,
   LogOut,
   Zap,
   X,
@@ -15,16 +14,15 @@ import { Button } from '@/components/ui/button';
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/factures', label: 'Factures', icon: FileText },
-  { to: '/stock', label: 'Stock', icon: Package },
 ];
 
 export function Sidebar() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
-  const { sidebarOpen, setSidebar } = useUIStore();
+  const authStore = useAuthStore();
+  const uiStore = useUIStore();
 
   const handleLogout = () => {
-    logout();
+    authStore.logout();
     navigate('/login');
   };
 
@@ -44,7 +42,7 @@ export function Sidebar() {
           variant="ghost"
           size="icon"
           className="lg:hidden text-primary-foreground hover:bg-primary-foreground/10"
-          onClick={() => setSidebar(false)}
+          onClick={() => uiStore.setSidebar(false)}
         >
           <X className="h-5 w-5" />
         </Button>
@@ -55,7 +53,7 @@ export function Sidebar() {
           <NavLink
             key={item.to}
             to={item.to}
-            onClick={() => setSidebar(false)}
+            onClick={() => uiStore.setSidebar(false)}
             className={({ isActive }) =>
               cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
@@ -74,12 +72,12 @@ export function Sidebar() {
       <div className="border-t border-primary-foreground/10 p-3">
         <div className="mb-2 flex items-center gap-3 rounded-lg px-3 py-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-foreground/20 text-sm font-semibold uppercase">
-            {user?.nom?.[0] ?? 'U'}
+            {authStore.user?.nom?.[0] ?? 'U'}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{user?.nom}</p>
+            <p className="truncate text-sm font-medium">{authStore.user?.nom}</p>
             <p className="truncate text-[11px] text-primary-foreground/60">
-              {user?.email}
+              {authStore.user?.email}
             </p>
           </div>
         </div>
@@ -101,11 +99,11 @@ export function Sidebar() {
       <aside className="hidden lg:flex w-64 shrink-0">{content}</aside>
 
       {/* Mobile overlay */}
-      {sidebarOpen && (
+      {uiStore.sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
             className="absolute inset-0 bg-black/50"
-            onClick={() => setSidebar(false)}
+            onClick={() => uiStore.setSidebar(false)}
           />
           <aside className="absolute left-0 top-0 h-full w-64 animate-in slide-in-from-left duration-200">
             {content}

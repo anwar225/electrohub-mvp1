@@ -1,5 +1,4 @@
 import axios, { AxiosError } from 'axios';
-import { useAuthStore } from '@/store/authStore';
 import type {
   Facture,
   Produit,
@@ -9,13 +8,34 @@ import type {
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
+const getStoredAuth = () => {
+  try {
+    const stored = localStorage.getItem('electrohub-auth');
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.error('Error parsing stored auth:', e);
+  }
+  return { user: null, token: null };
+};
+
+const clearStoredAuth = () => {
+  try {
+    localStorage.removeItem('electrohub-auth');
+  } catch (e) {
+    console.error('Error clearing stored auth:', e);
+  }
+};
+
 const http = axios.create({
   baseURL: API_URL,
   timeout: 180000,
 });
 
 http.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().token;
+  const auth = getStoredAuth();
+  const token = auth.token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -31,7 +51,7 @@ http.interceptors.response.use(
     if (error.response?.status === 401) {
       const path = error.config?.url || '';
       if (!path.includes('/api/auth/login') && !path.includes('/api/auth/signup')) {
-        useAuthStore.getState().logout();
+        clearStoredAuth();
       }
     }
     const message = error.response?.data?.error || error.message || 'Erreur réseau';
@@ -64,10 +84,7 @@ function mapFacture(f: Record<string, unknown>): Facture {
         tauxTVA: Number(item.tauxTVA) || 20,
       };
     }),
-    montantTotal: Number(f.montantTTC),
-    montantHT: Number(f.montantHT),
-    montantTVA: Number(f.montantTVA),
-    montantTTC: Number(f.montantTTC),
+    montantTotal: Number(f.montantTotal),
     status: mapStatus(String(f.status)),
     createdAt: String(f.createdAt),
   };
@@ -78,7 +95,7 @@ function mapProduit(p: Record<string, unknown>): Produit {
     id: String(p.id),
     nom: String(p.nom),
     categorie: String(p.categorie || 'Général'),
-    stock: Number(p.stockActuel),
+    stock: Number(p.stock),
     stockMin: Number(p.stockMin),
     prixAchat: Number(p.prixAchat),
     prixVente: Number(p.prixVente),
@@ -96,12 +113,24 @@ function mapUser(u: Record<string, unknown>): User {
 export const api = {
   async login(email: string, password: string): Promise<{ user: User; token: string }> {
     const { data } = await http.post('/api/auth/login', { email, password });
-    return { token: data.token, user: mapUser(data.user) };
+    const authData = { token: data.token, user: mapUser(data.user) };
+    try {
+      localStorage.setItem('electrohub-auth', JSON.stringify(authData));
+    } catch (e) {
+      console.error('Error storing auth:', e);
+    }
+    return authData;
   },
 
   async signup(nom: string, email: string, password: string): Promise<{ user: User; token: string }> {
     const { data } = await http.post('/api/auth/signup', { nom, email, password });
-    return { token: data.token, user: mapUser(data.user) };
+    const authData = { token: data.token, user: mapUser(data.user) };
+    try {
+      localStorage.setItem('electrohub-auth', JSON.stringify(authData));
+    } catch (e) {
+      console.error('Error storing auth:', e);
+    }
+    return authData;
   },
 
   async listFactures(): Promise<Facture[]> {
@@ -165,7 +194,7 @@ export const api = {
       prixAchat: payload.prixAchat,
       prixVente: payload.prixVente,
       stockMin: payload.stockMin,
-      stockActuel: payload.stock,
+      stock: payload.stock,
     });
     return mapProduit(data);
   },
@@ -177,7 +206,7 @@ export const api = {
       ...(payload.prixAchat !== undefined && { prixAchat: payload.prixAchat }),
       ...(payload.prixVente !== undefined && { prixVente: payload.prixVente }),
       ...(payload.stockMin !== undefined && { stockMin: payload.stockMin }),
-      ...(payload.stock !== undefined && { stockActuel: payload.stock }),
+      ...(payload.stock !== undefined && { stock: payload.stock }),
     });
     return mapProduit(data);
   },

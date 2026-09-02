@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/authStore';
 
 export function Layout() {
-  const { toggleSidebar } = useUIStore();
-  const { user } = useAuthStore();
+  const uiStore = useUIStore();
+  const authStore = useAuthStore();
 
   return (
     <div className="flex h-full min-h-screen bg-muted/30">
@@ -18,13 +18,13 @@ export function Layout() {
             variant="ghost"
             size="icon"
             className="lg:hidden"
-            onClick={toggleSidebar}
+            onClick={uiStore.toggleSidebar}
           >
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex-1">
             <p className="text-sm text-muted-foreground">
-              Bonjour, <span className="font-medium text-foreground">{user?.nom}</span>
+              Bonjour, <span className="font-medium text-foreground">{authStore.user?.nom}</span>
             </p>
           </div>
           <Button variant="ghost" size="icon" className="relative">
