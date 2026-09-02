@@ -171,7 +171,7 @@ const tints: Record<string, string> = {
   warning: 'bg-warning/10 text-warning',
   destructive: 'bg-destructive/10 text-destructive',
   success: 'bg-success/10 text-success',
-  info: 'bg-blue-500/10 text-blue-600',
+  info: 'bg-info/10 text-info',
 };
 
 function Kpi({
