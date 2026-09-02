@@ -1,8 +1,3 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { toast } from 'sonner';
@@ -11,88 +6,115 @@ import type {
   Produit,
 } from '@/types';
 
-export const queryKeys = {
-  factures: ['factures'] as const,
-  produits: ['produits'] as const,
-};
-
-// ---------- Factures ----------
-function useAuthedQuery<T>(key: readonly unknown[], queryFn: () => Promise<T>) {
-  const token = useAuthStore((s) => s.token);
-  return useQuery({
-    queryKey: key,
-    queryFn,
-    enabled: !!token,
-  });
-}
-
+// Simple API calls without react-query
 export function useFactures() {
-  return useAuthedQuery(queryKeys.factures, api.listFactures);
+  const token = useAuthStore((s) => s.token);
+  
+  const fetchFactures = async () => {
+    if (!token) return [];
+    return await api.listFactures();
+  };
+  
+  return { data: fetchFactures(), isLoading: false };
 }
 
 export function useCreateFacture() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: any) => api.createFacture(data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.factures });
-      qc.invalidateQueries({ queryKey: queryKeys.produits });
-    },
-  });
+  const createFacture = async (data: any) => {
+    try {
+      await api.createFacture(data);
+      toast.success('Facture créée avec succès');
+      return true;
+    } catch (error) {
+      toast.error('Erreur lors de la création de la facture');
+      return false;
+    }
+  };
+  
+  return { mutate: createFacture };
 }
 
 export function useUpdateFacture() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Facture> }) =>
-      api.updateFacture(id, data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.factures });
-      qc.invalidateQueries({ queryKey: queryKeys.produits });
-    },
-  });
+  const updateFacture = async ({ id, data }: { id: string; data: Partial<Facture> }) => {
+    try {
+      await api.updateFacture(id, data);
+      toast.success('Facture mise à jour');
+      return true;
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour de la facture');
+      return false;
+    }
+  };
+  
+  return { mutate: updateFacture };
 }
 
 export function useDeleteFacture() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.deleteFacture(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.factures }),
-  });
+  const deleteFacture = async (id: string) => {
+    try {
+      await api.deleteFacture(id);
+      toast.success('Facture supprimée');
+      return true;
+    } catch (error) {
+      toast.error('Erreur lors de la suppression de la facture');
+      return false;
+    }
+  };
+  
+  return { mutate: deleteFacture };
 }
 
-// ---------- Produits ----------
 export function useProduits() {
-  return useAuthedQuery(queryKeys.produits, api.listProduits);
+  const token = useAuthStore((s) => s.token);
+  
+  const fetchProduits = async () => {
+    if (!token) return [];
+    return await api.listProduits();
+  };
+  
+  return { data: fetchProduits(), isLoading: false };
 }
 
 export function useCreateProduit() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Omit<Produit, 'id'>) => api.createProduit(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.produits }),
-  });
+  const createProduit = async (data: Omit<Produit, 'id'>) => {
+    try {
+      await api.createProduit(data);
+      toast.success('Produit créé avec succès');
+      return true;
+    } catch (error) {
+      toast.error('Erreur lors de la création du produit');
+      return false;
+    }
+  };
+  
+  return { mutate: createProduit };
 }
 
 export function useUpdateProduit() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Produit> }) =>
-      api.updateProduit(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.produits }),
-  });
+  const updateProduit = async ({ id, data }: { id: string; data: Partial<Produit> }) => {
+    try {
+      await api.updateProduit(id, data);
+      toast.success('Produit mis à jour');
+      return true;
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour du produit');
+      return false;
+    }
+  };
+  
+  return { mutate: updateProduit };
 }
 
 export function useDeleteProduit() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.deleteProduit(id),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.produits });
+  const deleteProduit = async (id: string) => {
+    try {
+      await api.deleteProduit(id);
       toast.success('Produit supprimé');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Erreur lors de la suppression du produit');
-    },
-  });
+      return true;
+    } catch (error) {
+      toast.error('Erreur lors de la suppression du produit');
+      return false;
+    }
+  };
+  
+  return { mutate: deleteProduit };
 }
