@@ -10,12 +10,14 @@ async function verifyToken(req, res, next) {
 
   try {
     const decoded = verifyJwt(token);
-    req.userId = decoded.userId;
+    const userId = Number(decoded.userId); // Ensure userId is a number
+    
+    req.userId = userId;
     req.userRole = decoded.role;
     
     // Get full user object
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
+      where: { id: userId }
     });
     
     if (!user) {
@@ -25,6 +27,7 @@ async function verifyToken(req, res, next) {
     req.user = user;
     next();
   } catch (error) {
+    console.error('Auth error:', error);
     res.status(401).json({ error: 'Invalid token' });
   }
 }

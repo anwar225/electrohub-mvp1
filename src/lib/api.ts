@@ -95,7 +95,7 @@ function mapProduit(p: Record<string, unknown>): Produit {
     id: String(p.id),
     nom: String(p.nom),
     categorie: String(p.categorie || 'Général'),
-    stock: Number(p.stock),
+    stock: Number(p.stockActuel || p.stock || 0),
     stockMin: Number(p.stockMin),
     prixAchat: Number(p.prixAchat),
     prixVente: Number(p.prixVente),
