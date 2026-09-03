@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  Upload,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -46,6 +47,7 @@ import { useFactures, useDeleteFacture, useProduits, useCreateFacture } from '@/
 import { FactureStatusBadge } from '@/components/StatusBadge';
 import { formatCurrency, formatDate } from '@/lib/formatting';
 import { calculerMontantsItem, calculerTotauxFacture } from '@/lib/facture-calcul';
+import { ImportFactureDialog } from '@/components/ImportFactureDialog';
 import type { Facture } from '@/types';
 
 const PAGE_SIZE = 20;
@@ -63,6 +65,7 @@ export function VentesPage() {
   const [detail, setDetail] = useState<Facture | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Facture | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
   
   // Form state for creating facture
   const [formData, setFormData] = useState({
@@ -187,9 +190,14 @@ export function VentesPage() {
           <h1 className="text-2xl font-bold tracking-tight">Factures Ventes</h1>
           <p className="text-sm text-muted-foreground">{filtered.length} facture(s) de vente</p>
         </div>
-        <Button onClick={() => setShowCreateForm(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Nouvelle facture
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowImportDialog(true)}>
+            <Upload className="mr-2 h-4 w-4" /> Importer CSV
+          </Button>
+          <Button onClick={() => setShowCreateForm(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Nouvelle facture
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -490,6 +498,13 @@ export function VentesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Import dialog */}
+      <ImportFactureDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        type="vente"
+      />
     </div>
   );
 }
