@@ -12,6 +12,17 @@ BEGIN
     END IF;
 END $$;
 
+-- Add montantTotal column to facture_items table if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'facture_items' AND column_name = 'montantTotal'
+    ) THEN
+        ALTER TABLE facture_items ADD COLUMN "montantTotal" FLOAT DEFAULT 0;
+    END IF;
+END $$;
+
 -- Add userId column to produits table if it doesn't exist
 DO $$
 BEGIN
@@ -42,3 +53,6 @@ UPDATE produits SET "stockActuel" = 0 WHERE "stockActuel" IS NULL;
 
 -- Update existing factures to have montantTotal (default to 0)
 UPDATE factures SET "montantTotal" = 0 WHERE "montantTotal" IS NULL;
+
+-- Update existing facture_items to have montantTotal (default to 0)
+UPDATE facture_items SET "montantTotal" = 0 WHERE "montantTotal" IS NULL;
