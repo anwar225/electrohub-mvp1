@@ -52,14 +52,20 @@ function validerFacture(facture) {
   }
 
   facture.items?.forEach((item, index) => {
-    if (!item.designation || item.designation.trim() === '') {
+    // Plus lenient validation for imports
+    const designation = item.designation || item.nom || '';
+    if (!designation || designation.trim() === '') {
       erreurs.push(`Ligne ${index + 1}: Désignation requise`);
     }
-    if (!item.quantite || item.quantite <= 0) {
-      erreurs.push(`Ligne ${index + 1}: Quantité invalide`);
+    
+    const quantite = parseInt(item.quantite, 10) || 0;
+    if (!quantite || quantite <= 0) {
+      erreurs.push(`Ligne ${index + 1}: Quantité invalide (${item.quantite})`);
     }
-    if (!item.prixUnitaire || item.prixUnitaire <= 0) {
-      erreurs.push(`Ligne ${index + 1}: Prix unitaire invalide`);
+    
+    const prixUnitaire = parseFloat(item.prixUnitaire) || 0;
+    if (!prixUnitaire || prixUnitaire <= 0) {
+      erreurs.push(`Ligne ${index + 1}: Prix unitaire invalide (${item.prixUnitaire})`);
     }
   });
 

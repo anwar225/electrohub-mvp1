@@ -159,6 +159,7 @@ export function ImportFactureDialog({ open, onOpenChange, type }: ImportFactureD
     setIsProcessing(true);
     let successCount = 0;
     let errorCount = 0;
+    let errorDetails: string[] = [];
 
     // Check if this is complex format (single invoice with items)
     const isComplexFormat = preview.length === 1 && preview[0].items;
@@ -172,28 +173,39 @@ export function ImportFactureDialog({ open, onOpenChange, type }: ImportFactureD
         const fournisseurNom = type === 'achat' ? (invoiceData.fournisseur || invoiceData.client || '') : undefined;
         const clientNom = type === 'vente' ? (invoiceData.client || '') : undefined;
         
-        const items = invoiceData.items.map((item: any) => ({
-          produitId: '',
-          designation: item.designation || item.Désignation || '',
-          quantite: item.quantite || parseInt(item.Quantité) || 1,
-          prixUnitaire: item.prixUnitaire || parseFloat(item['P.U.']) || 0
-        }));
+        // Check if we have items
+        if (!invoiceData.items || invoiceData.items.length === 0) {
+          errorCount = 1;
+          errorDetails.push('Aucun article trouvé dans le fichier CSV');
+          toast.error('Aucun article trouvé dans le fichier CSV');
+        } else {
+          const items = invoiceData.items.map((item: any) => ({
+            produitId: '',
+            designation: item.designation || item.Désignation || '',
+            quantite: item.quantite || parseInt(item.Quantité) || 1,
+            prixUnitaire: item.prixUnitaire || parseFloat(item['P.U.']) || 0
+          }));
 
-        const payload = {
-          numero,
-          date,
-          type,
-          fournisseurNom,
-          clientNom,
-          items,
-          status: 'Validée',
-        };
+          const payload = {
+            numero,
+            date,
+            type,
+            fournisseurNom,
+            clientNom,
+            items,
+            status: 'Validée',
+          };
 
-        await createMut.mutateAsync(payload);
-        successCount = 1;
+          console.log('Import payload:', payload);
+          await createMut.mutateAsync(payload);
+          successCount = 1;
+        }
       } catch (error) {
         errorCount = 1;
+        const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+        errorDetails.push(errorMessage);
         console.error('Erreur import facture complexe:', error);
+        toast.error(`Erreur lors de l'import: ${errorMessage}`);
       }
     } else {
       // Process standard CSV format (multiple invoices)
@@ -225,6 +237,8 @@ export function ImportFactureDialog({ open, onOpenChange, type }: ImportFactureD
           successCount++;
         } catch (error) {
           errorCount++;
+          const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+          errorDetails.push(`${row.numero || 'Sans numéro'}: ${errorMessage}`);
           console.error('Erreur import ligne:', row, error);
         }
       }
@@ -236,7 +250,13 @@ export function ImportFactureDialog({ open, onOpenChange, type }: ImportFactureD
       toast.success(`${successCount} facture(s) importée(s) avec succès`);
     }
     if (errorCount > 0) {
-      toast.error(`${errorCount} facture(s) n'ont pas pu être importées`);
+      const errorSummary = errorDetails.slice(0, 3).join('; ');
+      const moreErrors = errorDetails.length > 3 ? `... et ${errorDetails.length - 3} autres erreurs` : '';
+      toast.error(`${errorCount} erreur(s): ${errorSummary}${moreErrors}`);
+    }
+
+    if (errorDetails.length > 0) {
+      console.log('Détails des erreurs:', errorDetails);
     }
 
     setFile(null);

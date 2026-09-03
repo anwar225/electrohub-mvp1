@@ -36,6 +36,8 @@ function toDbStatus(status) {
 }
 
 async function findOrCreateProduit(item, userId) {
+  console.log('findOrCreateProduit - item:', item, 'userId:', userId);
+  
   // Si un produitId est fourni, utiliser le produit existant
   if (item.produitId) {
     const produit = await prisma.produit.findUnique({
@@ -48,6 +50,8 @@ async function findOrCreateProduit(item, userId) {
   const nom = item.designation || item.nom || 'Produit';
   const prix = Number(item.prixUnitaire) || 0;
 
+  console.log('Recherche produit avec nom:', nom, 'userId:', userId);
+  
   let produit = await prisma.produit.findFirst({
     where: {
       userId: userId,
@@ -56,6 +60,7 @@ async function findOrCreateProduit(item, userId) {
   });
 
   if (!produit) {
+    console.log('Création nouveau produit:', nom, 'prix:', prix, 'userId:', userId);
     produit = await prisma.produit.create({
       data: {
         nom,
@@ -68,6 +73,9 @@ async function findOrCreateProduit(item, userId) {
         userId: userId,
       },
     });
+    console.log('Produit créé avec ID:', produit.id);
+  } else {
+    console.log('Produit existant trouvé avec ID:', produit.id);
   }
 
   return produit;
