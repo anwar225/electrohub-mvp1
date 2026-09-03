@@ -70,7 +70,7 @@ export function FournisseursPage() {
     date: new Date().toISOString().split('T')[0],
     type: 'achat' as const,
     fournisseurNom: '',
-    items: [{ produitId: '', designation: '', quantite: 1, prixUnitaire: 0, tauxTVA: 20 }]
+    items: [{ produitId: '', designation: '', quantite: 1, prixUnitaire: 0 }]
   });
 
   const filtered = useMemo(() => {
@@ -137,7 +137,7 @@ export function FournisseursPage() {
         date: new Date().toISOString().split('T')[0],
         type: 'achat',
         fournisseurNom: '',
-        items: [{ produitId: '', designation: '', quantite: 1, prixUnitaire: 0, tauxTVA: 20 }]
+        items: [{ produitId: '', designation: '', quantite: 1, prixUnitaire: 0 }]
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erreur');
@@ -162,7 +162,7 @@ export function FournisseursPage() {
   const addItem = () => {
     setFormData({
       ...formData,
-      items: [...formData.items, { produitId: '', designation: '', quantite: 1, prixUnitaire: 0, tauxTVA: 20 }]
+      items: [...formData.items, { produitId: '', designation: '', quantite: 1, prixUnitaire: 0 }]
     });
   };
 
@@ -176,7 +176,7 @@ export function FournisseursPage() {
   };
 
   const totaux = calculerTotauxFacture(formData.items.map(item => {
-    const montants = calculerMontantsItem(item.quantite, item.prixUnitaire, item.tauxTVA, 'achat');
+    const montants = calculerMontantsItem(item.quantite, item.prixUnitaire, 'achat');
     return { ...item, ...montants };
   }));
 
@@ -234,7 +234,7 @@ export function FournisseursPage() {
                   <TableHead>Numéro</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Fournisseur</TableHead>
-                  <TableHead className="text-right">Montant TTC</TableHead>
+                  <TableHead className="text-right">Montant HT</TableHead>
                   <TableHead>Statut</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -312,7 +312,7 @@ export function FournisseursPage() {
                 <Info label="Date" value={formatDate(detail.date)} />
                 <Info label="Fournisseur" value={detail.fournisseurNom} />
                 <Info label="Statut" value={detail.status} />
-                <Info label="Montant TTC" value={formatCurrency(detail.montantTotal)} />
+                <Info label="Montant HT" value={formatCurrency(detail.montantTotal)} />
               </div>
               <div className="rounded-lg border">
                 <Table>
@@ -385,7 +385,7 @@ export function FournisseursPage() {
               </div>
               <div className="space-y-2">
                 {formData.items.map((item, idx) => {
-                  const montants = calculerMontantsItem(item.quantite, item.prixUnitaire, item.tauxTVA, 'achat');
+                  const montants = calculerMontantsItem(item.quantite, item.prixUnitaire, 'achat');
                   return (
                     <div key={idx} className="grid grid-cols-7 gap-2 items-end">
                       <div className="col-span-2 space-y-1">
@@ -448,18 +448,10 @@ export function FournisseursPage() {
               </div>
             </div>
 
-            <div className="grid gap-4 p-4 bg-muted rounded grid-cols-3">
+            <div className="grid gap-4 p-4 bg-muted rounded grid-cols-1">
               <div>
                 <p className="text-xs text-muted-foreground">Total HT</p>
-                <p className="font-bold">{formatCurrency(totaux.montantHT)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total TVA</p>
-                <p className="font-bold">{formatCurrency(totaux.montantTVA)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total TTC</p>
-                <p className="font-bold text-green-600">{formatCurrency(totaux.montantTTC)}</p>
+                <p className="font-bold text-green-600">{formatCurrency(totaux.montantHT)}</p>
               </div>
             </div>
           </div>

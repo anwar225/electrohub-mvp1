@@ -70,7 +70,7 @@ export function VentesPage() {
     date: new Date().toISOString().split('T')[0],
     type: 'vente' as const,
     clientNom: '',
-    items: [{ produitId: '', designation: '', quantite: 1, prixUnitaire: 0, tauxTVA: 20 }]
+    items: [{ produitId: '', designation: '', quantite: 1, prixUnitaire: 0 }]
   });
 
   const filtered = useMemo(() => {
@@ -137,7 +137,7 @@ export function VentesPage() {
         date: new Date().toISOString().split('T')[0],
         type: 'vente',
         clientNom: '',
-        items: [{ produitId: '', designation: '', quantite: 1, prixUnitaire: 0, tauxTVA: 20 }]
+        items: [{ produitId: '', designation: '', quantite: 1, prixUnitaire: 0 }]
       });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erreur');
@@ -162,7 +162,7 @@ export function VentesPage() {
   const addItem = () => {
     setFormData({
       ...formData,
-      items: [...formData.items, { produitId: '', designation: '', quantite: 1, prixUnitaire: 0, tauxTVA: 20 }]
+      items: [...formData.items, { produitId: '', designation: '', quantite: 1, prixUnitaire: 0 }]
     });
   };
 
@@ -176,7 +176,7 @@ export function VentesPage() {
   };
 
   const totaux = calculerTotauxFacture(formData.items.map(item => {
-    const montants = calculerMontantsItem(item.quantite, item.prixUnitaire, item.tauxTVA, 'vente');
+    const montants = calculerMontantsItem(item.quantite, item.prixUnitaire, 'vente');
     return { ...item, ...montants };
   }));
 
@@ -385,7 +385,7 @@ export function VentesPage() {
               </div>
               <div className="space-y-2">
                 {formData.items.map((item, idx) => {
-                  const montants = calculerMontantsItem(item.quantite, item.prixUnitaire, item.tauxTVA, 'vente');
+                  const montants = calculerMontantsItem(item.quantite, item.prixUnitaire, 'vente');
                   return (
                     <div key={idx} className="grid grid-cols-7 gap-2 items-end">
                       <div className="col-span-2 space-y-1">
