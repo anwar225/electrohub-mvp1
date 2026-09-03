@@ -34,6 +34,7 @@ function calculerTotauxFacture(items) {
  */
 function validerFacture(facture) {
   const erreurs = [];
+  console.log('Validating facture:', facture);
 
   if (!facture.numero || facture.numero.trim() === '') {
     erreurs.push('Numéro de facture requis');
@@ -69,10 +70,13 @@ function validerFacture(facture) {
     }
   });
 
-  return {
+  const result = {
     valide: erreurs.length === 0,
     erreurs
   };
+  
+  console.log('Validation result:', result);
+  return result;
 }
 
 module.exports = {

@@ -89,15 +89,21 @@ async function uniqueNumero(preferred) {
 }
 
 async function replaceItems(factureId, items, type = 'achat', userId) {
+  console.log('replaceItems called with:', { factureId, itemsCount: items?.length, type, userId });
+  
   await prisma.factureItem.deleteMany({ where: { factureId } });
   
   const calculatedItems = [];
   for (const item of items || []) {
+    console.log('Processing item:', item);
     const produit = await findOrCreateProduit(item, userId);
+    console.log('Product found/created:', { id: produit.id, nom: produit.nom, userId: produit.userId });
+    
     const quantite = parseInt(item.quantite, 10) || 0;
     const prixUnitaire = Number(item.prixUnitaire) || 0;
     
     const montants = calculerMontantsItem(quantite, prixUnitaire, 0, type);
+    console.log('Item montants:', montants);
     
     const factureItem = await prisma.factureItem.create({
       data: {
@@ -110,9 +116,11 @@ async function replaceItems(factureId, items, type = 'achat', userId) {
       },
     });
     
+    console.log('FactureItem created:', { id: factureItem.id, produitId: factureItem.produitId });
     calculatedItems.push(factureItem);
   }
   
+  console.log('replaceItems completed, items created:', calculatedItems.length);
   return calculatedItems;
 }
 

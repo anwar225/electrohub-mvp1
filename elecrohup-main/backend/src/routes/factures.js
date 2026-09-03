@@ -10,6 +10,9 @@ const router = express.Router();
 // POST: Créer une facture avec items (SAISIE MANUELLE COMPLÈTE)
 router.post('/', verifyToken, async (req, res, next) => {
   try {
+    console.log('POST /api/factures - Request body:', JSON.stringify(req.body));
+    console.log('User from middleware:', req.user);
+    
     const {
       numero,
       date,
@@ -29,12 +32,15 @@ router.post('/', verifyToken, async (req, res, next) => {
     });
 
     if (!validation.valide) {
+      console.log('Validation failed:', validation.erreurs);
       return res.status(400).json({
         error: 'Données invalides',
         erreurs: validation.erreurs
       });
     }
 
+    console.log('Validation passed, calling saveFacture with userId:', req.user.id);
+    
     // Utiliser le service existant pour la création
     const facture = await saveFacture({
       userId: req.user.id,
@@ -47,8 +53,10 @@ router.post('/', verifyToken, async (req, res, next) => {
       status,
     });
 
+    console.log('Facture created successfully:', { id: facture.id, numero: facture.numero });
     res.status(201).json(facture);
   } catch (error) {
+    console.error('Error in POST /api/factures:', error);
     next(error);
   }
 });
