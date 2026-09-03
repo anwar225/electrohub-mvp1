@@ -450,7 +450,7 @@ export function FournisseursPage() {
 
             <div className="grid gap-4 p-4 bg-muted rounded grid-cols-1">
               <div>
-                <p className="text-xs text-muted-foreground">Total HT</p>
+                <p className="text-xs text-muted-foreground">Total</p>
                 <p className="font-bold text-green-600">{formatCurrency(totaux.montantHT)}</p>
               </div>
             </div>

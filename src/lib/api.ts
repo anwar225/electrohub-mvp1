@@ -81,7 +81,7 @@ function mapFacture(f: Record<string, unknown>): Facture {
         designation: String(item.designation || produit?.nom || item.nom || ''),
         quantite: Number(item.quantite),
         prixUnitaire: Number(item.prixUnitaire),
-        tauxTVA: Number(item.tauxTVA) || 20,
+        montantTotal: Number(item.montantTotal) || 0,
       };
     }),
     montantTotal: Number(f.montantTotal),

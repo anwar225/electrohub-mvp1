@@ -14,10 +14,7 @@ export interface ProduitFacture {
   designation?: string;
   quantite: number;
   prixUnitaire: number;
-  tauxTVA?: number;
-  montantHT?: number;
-  montantTVA?: number;
-  montantTTC?: number;
+  montantTotal?: number;
 }
 
 export interface Facture {
@@ -29,9 +26,6 @@ export interface Facture {
   clientNom?: string;
   produits: ProduitFacture[];
   montantTotal: number;
-  montantHT: number;
-  montantTVA: number;
-  montantTTC: number;
   status: FactureStatus;
   createdAt: string;
 }
