@@ -35,7 +35,7 @@ function toDbStatus(status) {
   return map[status] || status;
 }
 
-async function findOrCreateProduit(item) {
+async function findOrCreateProduit(item, userId) {
   // Si un produitId est fourni, utiliser le produit existant
   if (item.produitId) {
     const produit = await prisma.produit.findUnique({
@@ -50,6 +50,7 @@ async function findOrCreateProduit(item) {
 
   let produit = await prisma.produit.findFirst({
     where: {
+      userId: userId,
       OR: [{ nom: { equals: nom, mode: 'insensitive' } }, { reference: nom }],
     },
   });
@@ -62,6 +63,9 @@ async function findOrCreateProduit(item) {
         categorie: item.categorie || 'Général',
         prixAchat: prix,
         prixVente: Number((prix * 1.3).toFixed(2)),
+        stockActuel: 0, // Initial stock at 0, will be updated by validation
+        stockMin: 5,
+        userId: userId,
       },
     });
   }
@@ -76,12 +80,12 @@ async function uniqueNumero(preferred) {
   return `${base}-${Date.now()}`;
 }
 
-async function replaceItems(factureId, items, type = 'achat') {
+async function replaceItems(factureId, items, type = 'achat', userId) {
   await prisma.factureItem.deleteMany({ where: { factureId } });
   
   const calculatedItems = [];
   for (const item of items || []) {
-    const produit = await findOrCreateProduit(item);
+    const produit = await findOrCreateProduit(item, userId);
     const quantite = parseInt(item.quantite, 10) || 0;
     const prixUnitaire = Number(item.prixUnitaire) || 0;
     
@@ -133,7 +137,7 @@ async function saveFacture({
     },
   });
 
-  const calculatedItems = await replaceItems(facture.id, items, type);
+  const calculatedItems = await replaceItems(facture.id, items, type, userId);
   const totaux = calculerTotauxFacture(calculatedItems);
 
   await prisma.facture.update({
@@ -187,7 +191,7 @@ async function updateFacture(id, userId, payload) {
       error.status = 400;
       throw error;
     }
-    calculatedItems = await replaceItems(id, items, existing.type);
+    calculatedItems = await replaceItems(id, items, existing.type, userId);
   }
 
   const updateData = {
@@ -246,7 +250,33 @@ async function validateFacture(id, userId) {
     });
   }
 
-  // Pour MVP, on ne gère pas le stock automatiquement
+  // Gérer le stock automatiquement lors de la validation
+  for (const item of facture.items) {
+    const produit = await prisma.produit.findUnique({
+      where: { id: item.produitId },
+    });
+
+    if (produit) {
+      const stockChange = facture.type === 'achat' ? item.quantite : -item.quantite;
+      const newStock = Math.max(0, produit.stockActuel + stockChange);
+      
+      await prisma.produit.update({
+        where: { id: produit.id },
+        data: { stockActuel: newStock },
+      });
+
+      // Créer un mouvement de stock
+      await prisma.stockMovement.create({
+        data: {
+          produitId: produit.id,
+          type: facture.type === 'achat' ? 'entree' : 'sortie',
+          quantite: item.quantite,
+          factureId: facture.id,
+        },
+      });
+    }
+  }
+
   return prisma.facture.update({
     where: { id: facture.id },
     data: { status: 'validated' },
