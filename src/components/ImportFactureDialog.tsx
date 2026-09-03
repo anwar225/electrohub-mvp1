@@ -183,7 +183,7 @@ export function ImportFactureDialog({ open, onOpenChange, type }: ImportFactureD
             produitId: '',
             designation: item.designation || item.Désignation || '',
             quantite: item.quantite || parseInt(item.Quantité) || 1,
-            prixUnitaire: item.prixUnitaire || parseFloat(item['P.U.']) || 0
+            prixUnitaire: item.prixUnitaire || parseFloat(item['P.U.']) || 0 || 100 // Default to 100 if price is 0 or missing
           }));
 
           const payload = {
@@ -277,6 +277,9 @@ export function ImportFactureDialog({ open, onOpenChange, type }: ImportFactureD
           <DialogDescription>
             Importez vos factures {type === 'achat' ? 'd\'achat' : 'de vente'} depuis un fichier CSV (format standard ou type Moulime)
           </DialogDescription>
+          <div className="text-xs text-muted-foreground mt-2">
+            💡 Note: Si le prix unitaire est manquant ou égal à 0, il sera automatiquement fixé à 100
+          </div>
         </DialogHeader>
 
         <div className="space-y-4">

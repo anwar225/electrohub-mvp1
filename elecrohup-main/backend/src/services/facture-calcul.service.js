@@ -64,10 +64,12 @@ function validerFacture(facture) {
       erreurs.push(`Ligne ${index + 1}: Quantité invalide (${item.quantite})`);
     }
     
+    // Pour les imports, accepter prix = 0 et le remplacer par un prix par défaut
     const prixUnitaire = parseFloat(item.prixUnitaire) || 0;
-    if (!prixUnitaire || prixUnitaire <= 0) {
+    if (prixUnitaire < 0) {
       erreurs.push(`Ligne ${index + 1}: Prix unitaire invalide (${item.prixUnitaire})`);
     }
+    // Prix = 0 est accepté pour les imports, sera remplacé par défaut
   });
 
   const result = {
