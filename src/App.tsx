@@ -11,6 +11,7 @@ const Dashboard = lazy(() => import('@/pages/Dashboard').then((m) => ({ default:
 const FournisseursPage = lazy(() => import('@/pages/FournisseursPage').then((m) => ({ default: m.FournisseursPage })));
 const VentesPage = lazy(() => import('@/pages/VentesPage').then((m) => ({ default: m.VentesPage })));
 const StockPage = lazy(() => import('@/pages/StockPage').then((m) => ({ default: m.StockPage })));
+const AdminPage = lazy(() => import('@/pages/AdminPage').then((m) => ({ default: m.AdminPage })));
 
 function PageFallback() {
   return (
@@ -50,6 +51,7 @@ export default function App() {
             <Route path="/fournisseurs" element={<Suspense fallback={<PageFallback />}><FournisseursPage /></Suspense>} />
             <Route path="/ventes" element={<Suspense fallback={<PageFallback />}><VentesPage /></Suspense>} />
             <Route path="/stock" element={<Suspense fallback={<PageFallback />}><StockPage /></Suspense>} />
+            <Route path="/admin" element={<Suspense fallback={<PageFallback />}><AdminPage /></Suspense>} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

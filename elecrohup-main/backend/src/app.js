@@ -3,6 +3,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const factureRoutes = require('./routes/factures');
 const produitRoutes = require('./routes/produits');
+const adminRoutes = require('./routes/admin');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       factures: '/api/factures',
       produits: '/api/produits',
+      admin: '/api/admin',
     },
   });
 });
@@ -31,6 +33,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/factures', factureRoutes);
 app.use('/api/produits', produitRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });

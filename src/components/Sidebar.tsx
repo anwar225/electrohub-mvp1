@@ -7,6 +7,7 @@ import {
   LogOut,
   Zap,
   X,
+  Shield,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
@@ -18,6 +19,7 @@ const navItems = [
   { to: '/fournisseurs', label: 'Fournisseurs', icon: FileText },
   { to: '/ventes', label: 'Ventes', icon: ShoppingCart },
   { to: '/stock', label: 'Stock', icon: Package },
+  { to: '/admin', label: 'Admin', icon: Shield },
 ];
 
 export function Sidebar() {
