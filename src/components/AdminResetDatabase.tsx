@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Database } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthStore } from '@/store/authStore';
 
 interface AdminResetDatabaseProps {
   className?: string;
@@ -11,7 +11,8 @@ interface AdminResetDatabaseProps {
 export function AdminResetDatabase({ className }: AdminResetDatabaseProps) {
   const [isResetting, setIsResetting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const { token } = useAuth();
+  const authStore = useAuthStore();
+  const token = authStore.token;
 
   const handleResetDatabase = async () => {
     if (!showConfirm) {
